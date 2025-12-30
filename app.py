@@ -13,14 +13,12 @@ import docx
 
 app = Flask(__name__)
 app.secret_key = "interview_assignment_secret_key"
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Local dev only
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  
 
-# --- CONFIGURATION ---
+
 FOLDER_ID = "1ln7hu6m0EK9-Uuv3LbQ36S0XX6Q7yffD"
 CLIENT_SECRETS_FILE = "credentials.json"
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-
-# --- OLLAMA CONFIG ---
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODEL = "llama3:latest"
 
