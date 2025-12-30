@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Document Summarizer</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; color: #333; max-width: 1000px; margin: 40px auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #4285F4; padding-bottom: 10px; margin-bottom: 30px; }
+        .btn { display: inline-block; padding: 10px 20px; background-color: #4285F4; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; transition: background 0.3s; }
+        .btn:hover { background-color: #357abd; }
+        .btn-csv { background-color: #34a853; }
+        .btn-csv:hover { background-color: #2d8e47; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th, td { padding: 15px; text-align: left; border: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #555; text-transform: uppercase; font-size: 0.85em; }
+        .summary-text { line-height: 1.6; font-size: 0.95em; color: #444; min-width: 400px; }
+        .empty-state { text-align: center; padding: 50px; background: white; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Document Summarizer</h1>
+        {% if summaries %}
+            <a href="/download_csv" class="btn btn-csv">Download CSV Report</a>
+        {% endif %}
+    </div>
+
+    {% if summaries is none %}
+        <div class="empty-state">
+            <h3>Welcome to the AI Document Summarizer</h3>
+            <p>Please authenticate with your Google account to access and summarize documents from the target folder.</p>
+            <a href="/login" class="btn">Login with Google Drive</a>
+        </div>
+    {% elif summaries|length == 0 %}
+        <div class="empty-state">
+            <h3>No Documents Found</h3>
+            <p>We couldn't find any PDF, DOCX, or TXT files in the specified folder.</p>
+        </div>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Gemini AI Summary (5-10 Sentences)</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in summaries %}
+                <tr>
+                    <td><strong>{{ item.name }}</strong></td>
+                    <td class="summary-text">{{ item.summary }}</td>
+                    <td><a href="{{ item.link }}" target="_blank" class="btn" style="padding: 5px 10px; font-size: 0.8em;">View Original</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+</body>
+</html>
