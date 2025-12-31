@@ -10,6 +10,10 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 import pypdf
 import docx
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+
 
 app = Flask(__name__)
 app.secret_key = "interview_assignment_secret_key"
@@ -151,6 +155,60 @@ def download_csv():
         mimetype='text/csv',
         as_attachment=True,
         download_name='document_summaries.csv'
+    )
+
+
+@app.route('/download_pdf')
+def download_pdf():
+    if 'last_results' not in session or not session['last_results']:
+        return "No data available to download.", 400
+
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    x_margin = 40
+    y_position = height - 50
+
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(x_margin, y_position, "Document Summaries Report")
+    y_position -= 30
+
+    pdf.setFont("Helvetica", 10)
+
+    for item in session['last_results']:
+        if y_position < 80:
+            pdf.showPage()
+            pdf.setFont("Helvetica", 10)
+            y_position = height - 50
+
+        pdf.setFont("Helvetica-Bold", 10)
+        pdf.drawString(x_margin, y_position, f"File Name: {item['name']}")
+        y_position -= 15
+
+        pdf.setFont("Helvetica", 10)
+        summary_lines = pdf.beginText(x_margin, y_position)
+        for line in item['summary'].split('\n'):
+            summary_lines.textLine(line)
+            y_position -= 12
+            if y_position < 80:
+                pdf.drawText(summary_lines)
+                pdf.showPage()
+                pdf.setFont("Helvetica", 10)
+                y_position = height - 50
+                summary_lines = pdf.beginText(x_margin, y_position)
+
+        pdf.drawText(summary_lines)
+        y_position -= 20
+
+    pdf.save()
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name='document_summaries.pdf'
     )
 
 
